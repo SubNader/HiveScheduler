@@ -12,13 +12,15 @@ import scala.collection.mutable.ListBuffer
 import scala.util.control.Breaks._
 
 object Scheduler {
+  
   def welcome_message(version: String) {
     println("#" * 50 + "\n#" + " " * 48 + "#\n# \t\tHiveScheduler (V" + version + ")\t\t #\n#" + " " * 48 + "#\n" + "#" * 50)
   }
+  
   def main(args: Array[String]) {
     
     // Header
-    welcome_message("1.0");
+    welcome_message(version = "1.0");
     
     // Configuration
     println("\nOozie configuration: ")
@@ -67,12 +69,35 @@ object Scheduler {
           println("\n" + query_file_name + " has been loaded successfully. No parameters found.")
         }
         
-        //Set query parameters
+        // Set query parameters
         println("\n\nSet query parameters:")
         val parameters_map = parameters.map {parameter => 
         val parameter_value = readLine(parameter.subSequence(1, parameter.length) + " = ")
         (parameter,parameter_value)
         } 
+        
+        // Schedule job
+        println("Schedule job:")
+        val valid_time_units = List("MINUTE", "HOUR", "DAY", "WEEK", "MONTH")
+        var schedule_unit = readLine("\nSchedule units: " + valid_time_units.mkString(" | ")+"\nUnit: ")
+        while (!valid_time_units.contains(schedule_unit.toUpperCase())){
+          schedule_unit = readLine("Invalid time unit. Unit: ")
+        }
+        var schedule_amount = readLine("Amount:")
+        
+        // Validate amount type
+        val numeric_regex = "^[-+]?\\d+(\\.\\d+)?$"
+        while(!schedule_amount.matches(numeric_regex)){
+          schedule_amount = readLine("Invalid time amount type. Unit:")
+        }
+        
+        // Validate amount value
+        while (schedule_amount.toFloat<1.0){
+          schedule_amount = readLine("Invalid time amount. Unit:")
+        }
+        println("The job will be scheduled to run every " + schedule_amount + " " +schedule_unit.toLowerCase+"(s)");
+        
+        // Configure coordinator scheduling - To be implemented
         
         // Generate final command
         var final_command = "sudo oozie job -oozie " + oozie_path +
